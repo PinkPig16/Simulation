@@ -12,6 +12,15 @@ namespace SimulationDelivery
     {
         private static readonly Dictionary<Point, Entiry> Map = new Dictionary<Point, Entiry>();
 
+        private static readonly Dictionary<Type, string> typeEntity = new Dictionary<Type, string>
+            {
+                { typeof(Rock),"\U0001F31A"},
+                { typeof(Package),"\U0001F4E6"},
+                { typeof(Minibus),"\U0001F699"},
+                { typeof(Truck),"\U0001F69A"},
+                { typeof(Wood),"\U0001F334"}
+            };
+
         public  void AddEntiry(Point point, Entiry entiry)
         {
             if (!Map.ContainsKey(point))
@@ -23,6 +32,8 @@ namespace SimulationDelivery
         public void FillMap()
         {
             Random rnd = new Random();
+
+
 
             for (int i = 0; i < 105; i++)
             {
@@ -58,25 +69,13 @@ namespace SimulationDelivery
                 for(int j = 0; j < 22; j++)
                 {
                     Point point = new(i, j);
-                    if(Map.ContainsKey(point))
+                    if (Map.ContainsKey(point))
                     {
-                        if (Map[point] is Rock)
+                        Type objType = Map[point].GetType();
+                        if (typeEntity.ContainsKey(objType))
                         {
-                            Console.Write(" \U0001F31A ");
-                        } else if (Map[point] is Package)
-                        {
-                            Console.Write(" \U0001F4E6 ");
-                        } else if (Map[point] is Wood)
-                        {
-                            Console.Write(" \U0001F334 ");
-                        } else if (Map[point] is Truck)
-                        {
-                            Console.Write(" \U0001F69A ");
-                        } else if (Map[point] is Minibus)
-                        {
-                            Console.Write(" \U0001F699 ");
+                            Console.Write(typeEntity[objType]);
                         }
-                        
                     } else
                     {
                         Console.Write(" .. ");
