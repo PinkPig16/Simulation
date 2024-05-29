@@ -9,6 +9,9 @@ namespace SimulationDelivery
 {
     class Truck : Transport
     {
+        private static readonly int height = 12;
+        private static readonly int width = 22;
+        
         private int Speed { get; set; }
         private int MaxLoadCapacity { get; set; }
         private int LoadCapacity { get; set; }
@@ -21,18 +24,18 @@ namespace SimulationDelivery
 
             this.MaxLoadCapacity = MaxLoadCapacity;
         }
-        protected override void Loading()
+        public override void Loading()
         {
             throw new NotImplementedException();
         }
 
-        protected override Point MakeMove(Queue<Point> queue, Queue<Point> searchedQueue)
+        public override Point MakeMove(Entiry entiry)
         {
             int[,] offsets = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-
-            int height = Int32.Parse(Simulation.Resource.height());
-            int width = Int32.Parse(Simulation.Resource.width());
-
+            Queue<Point> queue = new Queue<Point>();
+            var pointEntiry = Maps.FindPoint(entiry);
+            queue.Enqueue(pointEntiry);
+            var searchedQueue = new Queue<Point>();
             while (queue.Count > 0)
             {
                 var point = queue.Dequeue();
@@ -44,21 +47,55 @@ namespace SimulationDelivery
                     Entiry value;
                     if (Maps.FindEntiry(point, out value))
                     {
-                        int difference = Math.Abs((searchedQueue.Last().X - point.X)) + Math.Abs((searchedQueue.Last().Y - point.Y));
-                        if (this.LoadCapacity == this.MaxLoadCapacity && typeof(Package) == value.GetType())
+
+                        if (this.LoadCapacity < this.MaxLoadCapacity && typeof(Package) == value.GetType())
                         {
+                            int difference = Math.Abs((searchedQueue.First().X - point.X)) + Math.Abs((searchedQueue.First().Y - point.Y));
+
                             if (difference <= this.Speed)
+                            {
+                                this.LoadCapacity++;
                                 return point;
+                            }
+                            else
+                            {
+                                foreach (var item in searchedQueue)
+                                {
+                                    difference = Math.Abs((item.X - point.X)) + Math.Abs((item.Y - point.Y));
+                                    if (difference <= this.Speed && !Maps.FindEntiry(point, out value))
+                                    {
+                                        return point;
+                                    }
+
+                                }
+                            }
                         }
-                        else
+                        else if (this.LoadCapacity == this.MaxLoadCapacity && typeof(Delivery) == value.GetType())
                         {
-                            
+                            int difference = Math.Abs((searchedQueue.Last().X - point.X)) + Math.Abs((searchedQueue.Last().Y - point.Y));
+
+                            if (difference <= this.Speed)
+                            {
+                                this.LoadCapacity++;
+                                Maps.removeEntity(point);
+                                return point;
+                            }
+                            else
+                            {
+                                foreach (var item in searchedQueue)
+                                {
+                                    difference = Math.Abs((item.X - point.X)) + Math.Abs((item.Y - point.Y));
+                                    if (difference <= this.Speed && !Maps.FindEntiry(point, out value))
+                                    {
+                                        return point;
+                                    }
+
+                                }
+                            }
+
                         }
                     }
-                    else if (typeof(Package) == value.GetType())
-                    {
-                        return point;
-                    }
+
                 }
 
                 for (int i = 0; i < offsets.GetLength(0); i++)
@@ -69,11 +106,13 @@ namespace SimulationDelivery
 
                     if (newX >= 0 && newY >= 0 && newX < height && newY < width)
                     {
-
+                        queue.Enqueue(new Point(newX, newY));
                     }
 
                 }
             }
+
+            return Point.Empty;
         }
     }
 }

@@ -12,8 +12,8 @@ namespace SimulationDelivery
         private int Speed { get; set; }
         private int MaxLoadCapacity { get; set; }
         private int LoadCapacity {  get; set; }
-        abstract protected void MakeMove(Queue<Point> queue, Queue<Point> searchedQueue);
-        abstract protected void Loading();
+        abstract public Point MakeMove(Entiry entiry);
+        abstract public void Loading();
 
 
 
